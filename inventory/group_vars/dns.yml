@@ -1,0 +1,10 @@
+dns_primary_ip: "172.16.28.3"
+dns_secondary_ip: "172.16.28.4"
+dns_zone_name: "jb-ta.local"
+
+dns_records:
+  A:
+    - { name: "@",      value: "{{ virtual_ip }}" }
+    - { name: "ns1",    value: "{{ dns_primary_ip }}" }
+    - { name: "check",  value: "172.16.28.228" }
+    - { name: "check1",  value: "172.16.28.38" }

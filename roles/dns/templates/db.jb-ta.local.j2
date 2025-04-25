@@ -1,0 +1,16 @@
+$TTL  604800
+@  IN  SOA  ns1.{{ dns_zone_name }}. admin.{{ dns_zone_name }}. (
+        {{ ansible_date_time.year }}{{ "%02d"|format(ansible_date_time.month|int) }}{{ "%02d"|format(ansible_date_time.day|int) }}01 ; Serial
+        60          ; **Refresh** — how often the secondary checks for a new serial
+        120         ; **Retry** — how often to retry if the refresh fails
+        604800      ; **Expire** — how long the secondary will keep serving the zone without a successful refresh (7 days)
+        86400       ; **Negative TTL** — time-to-live for NXDOMAIN responses (1 day)
+)
+
+@  IN  NS  ns1.{{ dns_zone_name }}.
+
+{% for rtype, items in dns_records.items() %}
+{%   for rec in items %}
+{{ "%-8s" % rec.name }}  IN  {{ "%-5s" % rtype }}  {{ rec.value }}
+{%   endfor %}
+{% endfor %}

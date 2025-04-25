@@ -1,0 +1,9 @@
+dhcp_network: "172.16.28.0"
+dhcp_netmask: "255.255.255.0"
+dhcp_default_router: "172.16.28.2"
+dhcp_range_start: "172.16.28.100"
+dhcp_range_end: "172.16.28.150"
+dhcp_lease_time: 800
+dhcp_max_lease_time: 7200
+dhcp_dns_servers:
+  - "{{ virtual_ip }}"

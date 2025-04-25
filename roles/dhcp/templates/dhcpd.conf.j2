@@ -1,0 +1,48 @@
+# DHCP Failover Peer Configuration
+failover peer "dhcp-fail" {
+  {{ "primary;" if inventory_hostname == groups['dhcp'][0] else "secondary;" }}
+  address {{ ansible_host }};
+  port 647;
+
+  peer address {{ hostvars[(groups['dhcp'] | difference([inventory_hostname]))[0]].ansible_host }};
+  peer port 647;
+
+  max-response-delay 60;
+  max-unacked-updates 10;
+
+  # Maximum Client Lead Time (seconds)
+  mclt 1800;
+
+  {% if inventory_hostname == groups['dhcp'][0] %}
+  # Evenly split the lease pool between the two servers (PRIMARY only)
+  split 128;
+  {% endif %}
+
+  load balance max seconds 3;
+}
+
+# Global Lease & Server Settings
+default-lease-time {{ dhcp_lease_time }};
+max-lease-time     {{ dhcp_max_lease_time }};
+authoritative;
+
+# Subnet & Pool Configuration
+subnet {{ dhcp_network }} netmask {{ dhcp_netmask }} {
+  pool {
+    failover peer "dhcp-fail";
+    range {{ dhcp_range_start }} {{ dhcp_range_end }};
+    option routers {{ dhcp_default_router }};
+    option domain-name-servers {% for ns in dhcp_dns_servers %}{{ ns }}{% if not loop.last %}, {% endif %}{% endfor %};
+    option domain-name "{{ dns_zone_name }}";
+  }
+
+  {% if dhcp_reservations is defined and dhcp_reservations | length > 0 %}
+  {% for host in dhcp_reservations %}
+  host {{ host.name }} {
+    hardware ethernet {{ host.mac }};
+    fixed-address {{ host.ip }};
+    option host-name "{{ host.name }}";
+  }
+  {% endfor %}
+  {% endif %}
+}

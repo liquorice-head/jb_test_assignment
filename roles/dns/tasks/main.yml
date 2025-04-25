@@ -1,0 +1,27 @@
+- name: Install BIND9
+  apt:
+    name: bind9
+    state: present
+    update_cache: true
+
+- name: Deploy named.conf.options
+  template:
+    src: named.conf.options.j2
+    dest: /etc/bind/named.conf.options
+  notify: Restart bind9
+
+- name: Deploy named.conf.local
+  template:
+    src: named.conf.local.j2
+    dest: /etc/bind/named.conf.local
+  notify: Restart bind9
+
+- import_tasks: records.yml
+  tags:
+    - dns_records
+
+- name: Ensure bind9 is running
+  service:
+    name: bind9
+    state: started
+    enabled: true

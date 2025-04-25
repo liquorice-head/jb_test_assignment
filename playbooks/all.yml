@@ -1,0 +1,8 @@
+- name: Setup DNS + DHCP HA cluster
+  hosts: all
+  become: true
+  roles:
+    - common
+    - dhcp
+    - dns
+    - keepalived

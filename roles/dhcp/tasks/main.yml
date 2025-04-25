@@ -1,0 +1,25 @@
+- name: Install ISC DHCP server
+  apt:
+    name: isc-dhcp-server
+    state: present
+    update_cache: true
+
+- name: Configure DHCP to listen on the VRRP interface
+  ansible.builtin.lineinfile:
+    path: /etc/default/isc-dhcp-server
+    regexp: '^INTERFACESv4='
+    line: 'INTERFACESv4="{{ keepalived_interface }}"'
+    backup: yes
+  notify: Restart DHCP
+
+- name: Deploy dhcpd.conf
+  template:
+    src: dhcpd.conf.j2
+    dest: /etc/dhcp/dhcpd.conf
+  notify: Restart DHCP
+
+- name: Ensure DHCP is started and enabled
+  service:
+    name: isc-dhcp-server
+    state: started
+    enabled: true

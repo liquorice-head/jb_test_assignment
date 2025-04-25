@@ -1,0 +1,7 @@
+zone "{{ dns_zone_name }}" {
+  type {{ 'primary' if ansible_host == dns_primary_ip else 'secondary' }};
+  file "/etc/bind/db.{{ dns_zone_name }}";
+  {% if ansible_host != dns_primary_ip %}
+  masters { {{ dns_primary_ip }}; };
+  {% endif %}
+};

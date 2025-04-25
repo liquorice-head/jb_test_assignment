@@ -1,0 +1,8 @@
+- name: Deploy zone file (only on master)
+  template:
+    src: db.jb-ta.local.j2
+    dest: /etc/bind/db.{{ dns_zone_name }}
+  when: ansible_host == dns_primary_ip
+  notify: Restart bind9
+  tags:
+    - dns_records

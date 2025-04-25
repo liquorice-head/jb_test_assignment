@@ -1,0 +1,3 @@
+bind_role: primary
+keepalived_priority: 100
+ansible_host: 172.16.28.3
